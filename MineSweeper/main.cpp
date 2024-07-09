@@ -22,6 +22,7 @@ void LoadTextures()
         std::string name = std::to_string(i);
         TextureManager::addTexture(filename, name);
     }
+    TextureManager::addTexture("assets/frame.png", "frame");
 }
 
 int main()
@@ -32,6 +33,9 @@ int main()
     LoadTextures();
 
     sf::Vector2i mPos;
+    sf::Sprite frame;
+    frame.setTexture(TextureManager::getTexture("frame"));
+    frame.setPosition(0, 0);
     Grid g(16, 16);
 
     while (window.isOpen())
@@ -58,6 +62,7 @@ int main()
         window.clear();
        
         g.draw(OFFSET_X, OFFSET_Y);
+        window.draw(frame);
        
         DrawBatch::draw(window);
         window.display();
