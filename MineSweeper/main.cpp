@@ -18,6 +18,12 @@ int main()
     TextureManager::addTexture("assets/metal.png", "metal");
     TextureManager::addTexture("assets/bomb.png", "bomb");
     TextureManager::addTexture("assets/empty.png", "empty");
+    for(int i = 1; i <= 8; i++)
+    {
+        std::string filename = "assets/" + std::to_string(i) + ".png";
+        std::string name = std::to_string(i);
+        TextureManager::addTexture(filename, name);
+    }
     Grid g(16, 16);
 
   

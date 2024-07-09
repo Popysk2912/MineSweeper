@@ -17,16 +17,14 @@ Tile::Tile(float x, float y)
     if(rn >= 90)
     {
         isBomb = true;
-        texture = TextureManager::getTexture("bomb");
         num = -1;
     }
     else
     {
-        
         isBomb = false;
-        texture = TextureManager::getTexture("empty");
         num = 0;
     }
+    this->setImage();
 }
 
 void Tile::draw(float offset_X, float offset_Y)
@@ -43,12 +41,52 @@ void Tile::draw(float offset_X, float offset_Y)
     }
     layer->draw(sprite);
     layer->display();
-    
 }
 
 void Tile::open()
 {
     hidden = false;
+}
+
+
+
+void Tile::setImage()
+{
+    switch (num)
+    {
+    default:
+        break;
+    case -1:
+        texture = TextureManager::getTexture("bomb");
+        break;
+    case 0:
+        texture = TextureManager::getTexture("empty");
+        break;
+    case 1:
+        texture = TextureManager::getTexture("1");
+        break;
+    case 2:
+        texture = TextureManager::getTexture("2");
+        break;
+    case 3:
+        texture = TextureManager::getTexture("3");
+        break;
+    case 4:
+        texture = TextureManager::getTexture("4");
+        break;
+    case 5:
+        texture = TextureManager::getTexture("5");
+        break;
+    case 6:
+        texture = TextureManager::getTexture("6");
+        break;
+    case 7:
+        texture = TextureManager::getTexture("7");
+        break;
+    case 8:
+        texture = TextureManager::getTexture("8");
+        break;
+    }
 }
 
 int Tile::getNum()
