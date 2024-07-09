@@ -23,6 +23,6 @@ sf::Texture& TextureManager::getTexture(std::string name)
 	}
 	else
 	{
-		return textures[name];
+		return textures["none"];
 	}
 }

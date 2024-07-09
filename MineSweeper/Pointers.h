@@ -17,4 +17,3 @@ public:
         return window_p;
     }
 };
-

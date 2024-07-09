@@ -7,29 +7,38 @@
 #include "Grid.h"
 
 
-int main()
-{   
-    int offsetX = 64;
-    int offsetY = 64;
-    sf::RenderWindow window(sf::VideoMode(640, 640), "SFML");
-    Pointers::setWindowPointer(&window);
-    sf::Vector2i mPos;
-    DrawBatch::initLayers(10);
+static int OFFSET_X = 64;
+static int OFFSET_Y = 64;
+
+void LoadTextures()
+{
+    TextureManager::addTexture("assets/none.png", "none");
     TextureManager::addTexture("assets/metal.png", "metal");
     TextureManager::addTexture("assets/bomb.png", "bomb");
     TextureManager::addTexture("assets/empty.png", "empty");
-    for(int i = 1; i <= 8; i++)
+    for (int i = 1; i <= 8; i++)
     {
         std::string filename = "assets/" + std::to_string(i) + ".png";
         std::string name = std::to_string(i);
         TextureManager::addTexture(filename, name);
     }
+}
+
+int main()
+{   
+    sf::RenderWindow window(sf::VideoMode(640, 640), "MineSweeper");
+    Pointers::setWindowPointer(&window);
+    DrawBatch::initLayers(10);
+    LoadTextures();
+
+    sf::Vector2i mPos;
     Grid g(16, 16);
 
-  
- 
     while (window.isOpen())
     {
+        mPos = sf::Mouse::getPosition(window);
+        mPos.x -= OFFSET_X;
+        mPos.y -= OFFSET_X;
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -44,16 +53,15 @@ int main()
             }
 
         }
-
-        mPos = sf::Mouse::getPosition(window);
-
+        /***************Drawing***************/
         DrawBatch::clear();
         window.clear();
        
-        g.draw(0, 0);
+        g.draw(OFFSET_X, OFFSET_Y);
        
         DrawBatch::draw(window);
         window.display();
+        /***************Drawing***************/
     }
     DrawBatch::deleteLayers();
     return 0;

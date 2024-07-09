@@ -43,5 +43,3 @@ void DrawBatch::deleteLayers()
 		delete layers[i];
 	}
 }
-
-

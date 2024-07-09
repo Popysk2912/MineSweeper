@@ -1,27 +1,17 @@
 #include "Tile.h"
 
-
-Tile::Tile(std::string& name, float x, float y)
-{
-    position = sf::Vector2f(x, y);
-    texture = TextureManager::getTexture(name);
-    sprite.setTexture(TextureManager::getTexture(name));
-    isBomb = 0;
-    num = 0;
-}
+const int BOMB_CHANSE = 10;
 
 Tile::Tile(float x, float y)
 {
     position = sf::Vector2f(x, y);
     int rn = rand() % 100;
-    if(rn >= 90)
+    if(rn >= 100-BOMB_CHANSE)
     {
-        isBomb = true;
         num = -1;
     }
     else
     {
-        isBomb = false;
         num = 0;
     }
     this->setImage();
@@ -47,8 +37,6 @@ void Tile::open()
 {
     hidden = false;
 }
-
-
 
 void Tile::setImage()
 {
@@ -94,3 +82,12 @@ int Tile::getNum()
     return num;
 }
 
+bool Tile::isOpen()
+{
+    return !hidden;
+}
+
+void Tile::setNum(int num)
+{
+    this->num = num;   
+}
