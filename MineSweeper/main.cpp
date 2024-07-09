@@ -7,12 +7,26 @@
 #include "Grid.h"
 
 
-static float OFFSET_X = 64;
-static float OFFSET_Y = 64;
+#define FPS 15
+#define OFFSET_X 64
+#define OFFSET_Y 64
 
-void restart(Grid& g)
-{
-    g = Grid(16, 16);
+sf::Texture renderTextureToTexture(const sf::RenderTexture& renderTexture) {
+    
+    sf::Vector2u size = renderTexture.getSize();
+
+    
+    sf::Texture texture;
+    texture.create(size.x, size.y);
+
+    
+    sf::Image image = renderTexture.getTexture().copyToImage();
+    image.flipVertically(); 
+
+    
+    texture.update(image);
+
+    return texture;
 }
 
 
@@ -29,64 +43,117 @@ void LoadTextures()
         TextureManager::addTexture(filename, name);
     }
     TextureManager::addTexture("assets/frame.png", "frame");
+    TextureManager::addTexture("assets/flag.png", "flag");
 }
+
+
+void restart(Grid& g, int& mines, int& flags)
+{
+    g = Grid(16, 16, OFFSET_X, OFFSET_Y);
+    mines = g.getMines();
+    flags = g.getFlags();
+}
+
 
 int main()
 {   
+    /****************Initializing*****************/
     sf::RenderWindow window(sf::VideoMode(640, 640), "MineSweeper");
+    window.setFramerateLimit(FPS);
     Pointers::setWindowPointer(&window);
     DrawBatch::initLayers(10);
     LoadTextures();
 
+    /******************Font*******************/
+    sf::Font font;
+    if (!font.loadFromFile("assets/p_emu.otf")) {
+        
+        return EXIT_FAILURE;
+    }
+
+    /******************Text*******************/
+    sf::Text text;
+    text.setPosition(528, 16);
+    text.setFont(font);
+    text.setCharacterSize(24);
+    text.setFillColor(sf::Color::Red);  
+
+    /****************Text Display*****************/
+    sf::RectangleShape rect(sf::Vector2f(64, 32));
+    rect.setPosition(512, 16);
+    rect.setFillColor(sf::Color::Black);
+
+    /****************Gorgeous Frame*****************/
     sf::Sprite frame;
     frame.setTexture(TextureManager::getTexture("frame"));
     frame.setPosition(0, 0);
 
-
+    /*************Initializing Logic Fields**************/
     sf::Vector2i mPos;
-    Grid g(16, 16);
+    Grid g(16, 16, OFFSET_X, OFFSET_Y);
     sf::RenderTexture* layer0 = DrawBatch::getLayer(0);
+    int mines = g.getMines();
+    int flags = g.getFlags();
     
 
     while (window.isOpen())
     {
+        /***********Mouse Input************/
         mPos = sf::Mouse::getPosition(window);
         mPos.x -= static_cast<int>(OFFSET_X);
         mPos.y -= static_cast<int>(OFFSET_Y);
+
+        /***********Handling Events************/
         sf::Event event;
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
                 window.close();
-            if (event.type == sf::Event::MouseButtonPressed)
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
             {
                 int x = static_cast<int>(mPos.x / 32);
                 int y = static_cast<int>(mPos.y / 32);
 
-                if (g.openCell(x, y) == -1) 
+                if (g.openCell(x, y) == -1)
                 {
                     g.openAll();
                 };
             }
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
+            {
+                int x = static_cast<int>(mPos.x / 32);
+                int y = static_cast<int>(mPos.y / 32);
+
+                g.setFlag(x, y);
+            }
+            
             if (event.type == sf::Event::KeyPressed) 
             {
                 if (event.key.code == sf::Keyboard::Key::R) {
-                    // Действие при нажатии клавиши A
-                    restart(g);
+                    restart(g, mines, flags);
                 }
             }
 
         }
-        /***************Drawing***************/
-        DrawBatch::clear();
-        window.clear();
-       
-        layer0->draw(frame);
-        g.draw(OFFSET_X, OFFSET_Y);
 
-        DrawBatch::draw(window);
-        window.display();
+        int mines = g.getMines();
+        int flags = g.getFlags();
+        text.setString(std::to_string(mines-flags));
+
         /***************Drawing***************/
+        layer0->draw(frame);
+        g.draw();
+        layer0->draw(rect);
+        layer0->draw(text);
+
+        // convert layer to Texture
+        sf::Texture texture = renderTextureToTexture(*layer0);
+        sf::Sprite sprite;
+        sprite.setTexture(texture);
+
+        // displaying converted texture
+        window.draw(sprite);
+        window.display();
     }
     DrawBatch::deleteLayers();
     return 0;

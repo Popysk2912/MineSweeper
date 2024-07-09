@@ -1,14 +1,33 @@
 #include "Grid.h"
 
-Grid::Grid(unsigned int size_x, unsigned int size_y)
+Grid::Grid(unsigned int size_x, unsigned int size_y, float offset_X, float offset_Y)
 {
     grid.resize(size_x);
     for (unsigned int x = 0; x < size_x; x++) {
         for (unsigned int y = 0; y < size_y; y++) {
-            grid[x].emplace_back(std::make_unique<Tile>(32 * x, 32 * y));
+            grid[x].emplace_back(std::make_unique<Tile>(32 * x, 32 * y, offset_X, offset_Y));
         }
     }
     this->setNums();
+}
+
+bool Grid::isOnRange(int x, int y)
+{
+    return (x >= 0 && x < grid.size() && y >= 0 && y < grid[0].size());
+}
+
+int Grid::getFlags()
+{
+    int count = 0;
+    for (const auto& row : grid) {
+        for (const auto& tile : row) {
+            if (tile->isFlagged())
+            {
+                count++;
+            }
+        }
+    }
+    return count;
 }
 
 void Grid::setNums()
@@ -56,6 +75,25 @@ int Grid::checkBombs(int x, int y)
     return count;
 }
 
+void Grid::checkWonState()
+{
+    int count = 0;
+    for (const auto& row : grid) 
+    {
+        for (const auto& tile : row) 
+        {
+            if (tile->getNum() == -1 && tile->isFlagged())
+            {
+                count++;
+            }
+        }
+    }
+    if (count == this->getMines())
+    {
+        delete this;
+    }
+}
+
 int Grid::openCell(int x, int y)
 {
     if (x < 0 || x >= grid.size() || y < 0 || y >= grid[0].size())
@@ -63,6 +101,10 @@ int Grid::openCell(int x, int y)
         return 0;
     }
     if (grid[x][y]->isOpen())
+    {
+        return 0;
+    }
+    if (grid[x][y]->isFlagged())
     {
         return 0;
     }
@@ -85,6 +127,15 @@ int Grid::openCell(int x, int y)
     }
 }
 
+void Grid::setFlag(int x, int y)
+{
+    if (this->isOnRange(x, y) && !grid[x][y]->isOpen() && this->getMines() - this->getFlags() > 0)
+    {
+        grid[x][y]->flag();
+    }
+    checkWonState();
+}
+
 void Grid::openAll()
 {
     for (const auto& row : grid) {
@@ -94,11 +145,26 @@ void Grid::openAll()
     }
 }
 
-void Grid::draw(float offset_X, float offset_Y)
+int Grid::getMines()
 {
+    int count = 0;
     for (const auto& row : grid) {
         for (const auto& tile : row) {
-            tile->draw(offset_X, offset_Y);
+            if(tile->getNum() == -1)
+            {
+                count++;
+            }
+        }
+    }
+    return count;
+}
+
+void Grid::draw()
+{
+    
+    for (const auto& row : grid) {
+        for (const auto& tile : row) {
+            tile->draw();
         }
     }
 }

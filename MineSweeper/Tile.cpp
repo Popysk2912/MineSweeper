@@ -1,12 +1,16 @@
 #include "Tile.h"
 
-const int BOMB_CHANSE = 25;
+const int BOMB_CHANÑE = 15;
 
-Tile::Tile(float x, float y)
+Tile::Tile(float x, float y, float offset_X, float offset_Y)
 {
+    flagSprite.setTexture(TextureManager::getTexture("flag"));
     position = sf::Vector2f(x, y);
-    int rn = rand() % 100;
-    if(rn >= 100-BOMB_CHANSE)
+    sprite.setPosition(sf::Vector2f(position.x + offset_X, position.y + offset_Y));
+    flagSprite.setPosition(sf::Vector2f(position.x + offset_X, position.y + offset_Y));
+    layer = DrawBatch::getLayer(0);
+    int rn = Randomizer<int>::generate(1, 100);
+    if(rn >= 100-BOMB_CHANÑE)
     {
         num = -1;
     }
@@ -17,10 +21,8 @@ Tile::Tile(float x, float y)
     this->setImage();
 }
 
-void Tile::draw(float offset_X, float offset_Y)
+void Tile::draw()
 {
-    sprite.setPosition(sf::Vector2f(position.x+offset_X, position.y + offset_Y));
-    sf::RenderTexture* layer = DrawBatch::getLayer(0);
     if(hidden)
     {
         sprite.setTexture(TextureManager::getTexture("metal"));
@@ -30,11 +32,20 @@ void Tile::draw(float offset_X, float offset_Y)
         sprite.setTexture(texture);
     }
     layer->draw(sprite);
-    layer->display();
+    if(flagged)
+    {
+        layer->draw(flagSprite);
+    }
+}
+
+void Tile::flag()
+{
+    flagged = !flagged;
 }
 
 void Tile::open()
 {
+    flagged = false;
     hidden = false;
 }
 
@@ -85,6 +96,11 @@ int Tile::getNum()
 bool Tile::isOpen()
 {
     return !hidden;
+}
+
+bool Tile::isFlagged()
+{
+    return flagged;
 }
 
 void Tile::setNum(int num)
