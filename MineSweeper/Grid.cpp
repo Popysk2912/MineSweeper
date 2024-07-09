@@ -56,20 +56,20 @@ int Grid::checkBombs(int x, int y)
     return count;
 }
 
-void Grid::openCell(int x, int y)
+int Grid::openCell(int x, int y)
 {
     if (x < 0 || x >= grid.size() || y < 0 || y >= grid[0].size())
     {
-        return;
+        return 0;
     }
     if (grid[x][y]->isOpen())
     {
-        return;
+        return 0;
     }
     grid[x][y]->open();
     if (grid[x][y]->getNum() != 0)
     {
-        return;
+        return grid[x][y]->getNum();
     }
     for (int i = -1; i <= 1; i++)
     {
@@ -81,6 +81,15 @@ void Grid::openCell(int x, int y)
                 continue;
             }
             openCell(x + i, y + j);
+        }
+    }
+}
+
+void Grid::openAll()
+{
+    for (const auto& row : grid) {
+        for (const auto& tile : row) {
+            tile->open();
         }
     }
 }

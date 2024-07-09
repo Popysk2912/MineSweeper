@@ -1,6 +1,6 @@
 #include "Tile.h"
 
-const int BOMB_CHANSE = 10;
+const int BOMB_CHANSE = 25;
 
 Tile::Tile(float x, float y)
 {

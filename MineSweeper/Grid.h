@@ -10,7 +10,8 @@ class Grid {
 public:
     Grid(unsigned int size_x, unsigned int size_y);
     void draw(float offset_X, float offset_Y);
-    void openCell(int x, int y);
+    int openCell(int x, int y);
+    void openAll();
 
 private:
     void setNums();

@@ -7,8 +7,14 @@
 #include "Grid.h"
 
 
-static int OFFSET_X = 64;
-static int OFFSET_Y = 64;
+static float OFFSET_X = 64;
+static float OFFSET_Y = 64;
+
+void restart(Grid& g)
+{
+    g = Grid(16, 16);
+}
+
 
 void LoadTextures()
 {
@@ -32,17 +38,21 @@ int main()
     DrawBatch::initLayers(10);
     LoadTextures();
 
-    sf::Vector2i mPos;
     sf::Sprite frame;
     frame.setTexture(TextureManager::getTexture("frame"));
     frame.setPosition(0, 0);
+
+
+    sf::Vector2i mPos;
     Grid g(16, 16);
+    sf::RenderTexture* layer0 = DrawBatch::getLayer(0);
+    
 
     while (window.isOpen())
     {
         mPos = sf::Mouse::getPosition(window);
-        mPos.x -= OFFSET_X;
-        mPos.y -= OFFSET_X;
+        mPos.x -= static_cast<int>(OFFSET_X);
+        mPos.y -= static_cast<int>(OFFSET_Y);
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -53,7 +63,10 @@ int main()
                 int x = static_cast<int>(mPos.x / 32);
                 int y = static_cast<int>(mPos.y / 32);
 
-                g.openCell(x, y);
+                if (g.openCell(x, y) == -1) 
+                {
+                    g.openAll();
+                };
             }
 
         }
@@ -61,9 +74,9 @@ int main()
         DrawBatch::clear();
         window.clear();
        
+        layer0->draw(frame);
         g.draw(OFFSET_X, OFFSET_Y);
-        window.draw(frame);
-       
+
         DrawBatch::draw(window);
         window.display();
         /***************Drawing***************/
